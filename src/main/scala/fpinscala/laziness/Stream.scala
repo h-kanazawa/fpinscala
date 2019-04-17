@@ -113,6 +113,9 @@ trait Stream[+A] {
     }
 
   // Exercise 5.14
+  def zipAll[B](s2: Stream[B]): Stream[(Option[A],Option[B])] =
+    zipWithAll(s2)((_,_))
+
   def startsWith[A](s: Stream[A]): Boolean =
     zipAll(s).takeWhile(!_._2.isEmpty) forAll {
       case (h1 ,h2) => h1 == h2
