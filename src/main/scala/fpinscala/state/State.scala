@@ -4,29 +4,29 @@ trait RNG {
   def nextInt: (Int, RNG)
 }
 
-case class SimpleRNG(seed: Long) extends RNG {
-  def nextInt: (Int, RNG) = {
-    // Long is 64 bit integer
-    //
-    // Linear congruential generators, LCG
-    // is a Pseudorandom Number Generator
-    //
-    // Xn+1 = (a * Xn + c) mod m
-    // https://en.wikipedia.org/wiki/Linear_congruential_generator
-    //
-    // 5DEECE66D(16) = 25214903917(10)
-    // B(16) = 11(10)
-    // FFFFFFFFFFFF(16) = 281474976710655(10) = 2^48 - 1
-    val newSeed = (seed * 0x5DEECE66DL + 0xBL) & 0xFFFFFFFFFFFFL
-    val nextRNG = SimpleRNG(newSeed)
-
-    // >>> is 0 padding right binary shift
-    val n = (newSeed >>> 16).toInt
-    (n, nextRNG)
-  }
-}
-
 object RNG {
+  case class Simple(seed: Long) extends RNG {
+    def nextInt: (Int, RNG) = {
+      // Long is 64 bit integer
+      //
+      // Linear congruential generators, LCG
+      // is a Pseudorandom Number Generator
+      //
+      // Xn+1 = (a * Xn + c) mod m
+      // https://en.wikipedia.org/wiki/Linear_congruential_generator
+      //
+      // 5DEECE66D(16) = 25214903917(10)
+      // B(16) = 11(10)
+      // FFFFFFFFFFFF(16) = 281474976710655(10) = 2^48 - 1
+      val newSeed = (seed * 0x5DEECE66DL + 0xBL) & 0xFFFFFFFFFFFFL
+      val nextRNG = Simple(newSeed)
+
+      // >>> is 0 padding right binary shift
+      val n = (newSeed >>> 16).toInt
+      (n, nextRNG)
+    }
+  }
+
   // Exercise 6.1
   def nonNegativeInt(rng: RNG): (Int, RNG) = {
     val (i, r) = rng.nextInt
@@ -38,6 +38,9 @@ object RNG {
     val (i, r) = nonNegativeInt(rng)
     (i / (Int.MaxValue.toDouble + 1), r)
   }
+
+  def boolean(rng: RNG): (Boolean, RNG) =
+    rng.nextInt match { case (i,rng2) => (i%2==0,rng2) }
 
   // Exercise 6.3
   def intDouble(rng: RNG): ((Int, Double), RNG) = {
@@ -128,7 +131,7 @@ object RNG {
     // flatMap[A, C](ra: Rand[A])(map(rb)(b => f(a, b)):(A => Rnad[C]))
 
   def main(args: Array[String]): Unit = {
-    val r = new SimpleRNG(1)
+    val r = new Simple(1)
     println(nonNegativeInt(r)._1)
     println(intDouble(r)._1)
     println(doubleInt(r)._1)

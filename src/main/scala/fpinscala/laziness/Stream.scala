@@ -121,6 +121,9 @@ trait Stream[+A] {
       case (h1 ,h2) => h1 == h2
     }
 
+  def zip[B](s2: Stream[B]): Stream[(A,B)] =
+    zipWith(s2)((_, _))
+
   // Exercise 5.15
   def tails: Stream[Stream[A]] =
     unfold(this) {

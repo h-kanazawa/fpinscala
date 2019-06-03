@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/fpinscala.iml" filepath="$PROJECT_DIR$/.idea/modules/fpinscala.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/fpinscala-build.iml" filepath="$PROJECT_DIR$/.idea/modules/fpinscala-build.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/main/main.iml" filepath="$PROJECT_DIR$/src/main/main.iml" />
     </modules>
   </component>
 </project>
