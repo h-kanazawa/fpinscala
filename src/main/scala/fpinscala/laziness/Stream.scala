@@ -116,7 +116,7 @@ trait Stream[+A] {
   def zipAll[B](s2: Stream[B]): Stream[(Option[A],Option[B])] =
     zipWithAll(s2)((_,_))
 
-  def startsWith[A](s: Stream[A]): Boolean =
+  def startsWith[B](s: Stream[B]): Boolean =
     zipAll(s).takeWhile(!_._2.isEmpty) forAll {
       case (h1 ,h2) => h1 == h2
     }
@@ -131,7 +131,7 @@ trait Stream[+A] {
       case s => Some((s, s drop 1))
     } append Stream(empty)
 
-  def hasSubsequence[A](s: Stream[A]): Boolean =
+  def hasSubsequence[B](s: Stream[B]): Boolean =
     tails exists (_ startsWith s)
 
   // Exercise 5.16
