@@ -73,6 +73,13 @@ sealed abstract class STArray[S, A](implicit manifest: Manifest[A]) {
     xs.foldRight(ST[S, Unit](())) {
       case ((k, v), st) => st flatMap (_ => write(k, v))
     }
+
+  def swap(i: Int, j: Int): ST[S, Unit] = for {
+    x <- read(i)
+    y <- read(j)
+    _ <- write(i, y)
+    _ <- write(j, x)
+  } yield ()
 }
 
 object STArray {
@@ -87,9 +94,46 @@ object STArray {
     })
 }
 
+object Immutable {
+  def noop[S] = ST[S,Unit](())
+
+  def partition[S](a: STArray[S, Int], l: Int, r: Int, pivot: Int): ST[S, Int] = for {
+    vp <- a.read(pivot)
+    _ <- a.swap(pivot, r)
+    j <- STRef(l)
+    _ <- (l until r).foldLeft(noop[S])((s, i) => for {
+      _ <- s
+      vi <- a.read(i)
+      _  <- if (vi < vp) for {
+        vj <- j.read
+        _  <- a.swap(i, vj)
+        _  <- j.write(vj + 1)
+      } yield () else noop[S]
+    } yield ())
+    x <- j.read
+    _ <- a.swap(x, r)
+  } yield x
+
+  def qs[S](a: STArray[S, Int], l: Int, r: Int): ST[S, Unit] = if (l < r) for {
+    pi <- partition(a, l, r, l + (r - l) / 2)
+    _ <- qs(a, l, pi - 1)
+    _ <- qs(a, pi + 1, r)
+  } yield () else noop[S]
+
+  def quicksort(xs: List[Int]): List[Int] =
+    if (xs.isEmpty) xs else ST.runST(new RunnableST[List[Int]] {
+      def apply[S] = for {
+        arr    <- STArray.fromList(xs)
+        size   <- arr.size
+        _      <- qs(arr, 0, size - 1)
+        sorted <- arr.freeze
+      } yield sorted
+    })
+}
+
 object LocalEffects {
   def main(args: Array[String]): Unit = {
-    val p = new RunnableST[(Int, Int)] {
+    val p1 = new RunnableST[(Int, Int)] {
       def apply[S] = for {
         r1 <- STRef(1)
         r2 <- STRef(2)
@@ -101,8 +145,8 @@ object LocalEffects {
         b <- r2.read
       } yield (a, b)
     }
-    val r = ST.runST(p)
-    println(r)
+    val r1 = ST.runST(p1)
+    println(r1)
 
     val p2 = new RunnableST[List[String]] {
       def apply[S] = for {
@@ -122,5 +166,8 @@ object LocalEffects {
     }
     val r3 = ST.runST(p3)
     println(r3)
+
+    val r4 = Immutable.quicksort(List(15, 3, 0, -5, 2, 1, 8, 42, 42, -9, -14, 0, 3))
+    println(r4)
   }
 }
