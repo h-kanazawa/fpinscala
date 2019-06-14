@@ -2,15 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9a8a8f0a-bca8-4527-97fe-8eeaac37b17b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/scala/fpinscala/applicative/Applicative.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/fpinscala/iomonad/IO.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/fpinscala/iomonad/Monad.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/fpinscala/localeffects/LocalEffects.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/fpinscala/parallelism/Actor.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/hkanazawa.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/hkanazawa.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/fpinscala/monads/Monad.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/fpinscala/monads/Monad.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/fpinscala/parallelism/Nonblocking.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/fpinscala/parallelism/Nonblocking.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/fpinscala/localeffects/LocalEffects.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/fpinscala/localeffects/LocalEffects.scala" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -59,8 +51,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/fpinscala/localeffects/LocalEffects.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="281">
-              <caret line="60" column="58" lean-forward="true" selection-start-line="60" selection-start-column="58" selection-end-line="60" selection-end-column="58" />
+            <state relative-caret-position="209">
+              <caret line="106" column="43" lean-forward="true" selection-start-line="106" selection-start-column="43" selection-end-line="106" selection-end-column="43" />
             </state>
           </provider>
         </entry>
@@ -390,7 +382,21 @@
       <option name="project" value="LOCAL" />
       <updated>1560025890700</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="IO">
+      <created>1560544828276</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1560544828276</updated>
+    </task>
+    <task id="LOCAL-00005" summary="LocalEffects STArray fill">
+      <created>1560544852641</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1560544852641</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -478,7 +484,9 @@
     <MESSAGE value="Add a" />
     <MESSAGE value="Add Monoid" />
     <MESSAGE value="Add Monad" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add Monad" />
+    <MESSAGE value="IO" />
+    <MESSAGE value="LocalEffects STArray fill" />
+    <option name="LAST_COMMIT_MESSAGE" value="LocalEffects STArray fill" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/main/scala/fpinscala/testing/Gen.scala">
@@ -615,8 +623,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/fpinscala/localeffects/LocalEffects.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="281">
-          <caret line="60" column="58" lean-forward="true" selection-start-line="60" selection-start-column="58" selection-end-line="60" selection-end-column="58" />
+        <state relative-caret-position="209">
+          <caret line="106" column="43" lean-forward="true" selection-start-line="106" selection-start-column="43" selection-end-line="106" selection-end-column="43" />
         </state>
       </provider>
     </entry>

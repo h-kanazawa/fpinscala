@@ -80,6 +80,11 @@ object STArray {
     ST(new STArray[S, A] {
       lazy val value = Array.fill(sz)(v)
     })
+
+  def fromList[S, A: Manifest](xs: List[A]): ST[S, STArray[S, A]] =
+    ST(new STArray[S, A] {
+      lazy val value = xs.toArray
+    })
 }
 
 object LocalEffects {
@@ -108,5 +113,14 @@ object LocalEffects {
     }
     val r2 = ST.runST(p2)
     println(r2)
+
+    val p3 = new RunnableST[List[String]] {
+      def apply[S] = for {
+        a <- STArray.fromList(List("aa", "bb", "cc"))
+        l <- a.freeze
+      } yield l
+    }
+    val r3 = ST.runST(p3)
+    println(r3)
   }
 }
