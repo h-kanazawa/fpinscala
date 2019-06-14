@@ -131,6 +131,33 @@ object Immutable {
     })
 }
 
+import scala.collection.mutable.HashMap
+
+sealed trait STMap[S, K, V] {
+  protected def table: HashMap[K, V]
+
+  def size: ST[S, Int] = ST(table.size)
+
+  def apply(k: K): ST[S, V] = ST(table(k))
+
+  def get(k: K): ST[S, Option[V]] = ST(table.get(k))
+
+  def +=(kv: (K, V)): ST[S, Unit] = ST(table += kv)
+
+  def -=(k: K): ST[S, Unit] = ST(table -= k)
+}
+
+object STMap {
+  def empty[S, K, V]: ST[S, STMap[S, K, V]] = ST(new STMap[S, K, V] {
+    val table = HashMap.empty[K, V]
+  })
+
+  def fromMap[S, K, V](m: Map[K, V]): ST[S, STMap[S, K, V]] = ST(new STMap[S, K, V] {
+    val table = (HashMap.newBuilder[K, V] ++= m).result
+  })
+}
+
+
 object LocalEffects {
   def main(args: Array[String]): Unit = {
     val p1 = new RunnableST[(Int, Int)] {
@@ -169,5 +196,21 @@ object LocalEffects {
 
     val r4 = Immutable.quicksort(List(15, 3, 0, -5, 2, 1, 8, 42, 42, -9, -14, 0, 3))
     println(r4)
+
+    val p5 = new RunnableST[(Option[Int], Option[Int], Int)] {
+      def apply[S] = for {
+        m <- STMap.fromMap(Map("a" -> 2, "bb" -> 3, "ccc" -> 7))
+        _ <- m += ("d", 10)
+        _ <- m -= ("bb")
+        a <- m.get("a")
+        bb <- m.get("bb")
+        s <- m.size
+      } yield (a, bb, s)
+    }
+
+    val r5 = ST.runST(p5)
+    println(r5._1)
+    println(r5._2)
+    println(r5._3)
   }
 }
