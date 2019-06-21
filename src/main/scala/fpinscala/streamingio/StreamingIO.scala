@@ -84,6 +84,7 @@ object SimpleStreamTransducers {
       case None => Halt()
     }
 
+  // Exercise 15.2
   def count[I]: Process[I, Int] = {
     def go(acc: Int): Process[I, Int] =
       Await {
@@ -93,6 +94,31 @@ object SimpleStreamTransducers {
     go(0)
   }
 
+  // Exercise 15.3
+  def mean: Process[Double, Double] = {
+    def go(sum: Double, count: Double): Process[Double, Double] =
+      Await {
+        case Some(d) => Emit((sum + d) / (count + 1), go(sum + d, count + 1))
+        case _ => Halt()
+      }
+    go(0.0, 0.0)
+  }
+
+  def loop[S, I, O](z: S)(f: (I, S) => (O, S)): Process[I, O] =
+    Await {
+      case Some(d) => {
+        val (o, s2) = f(d, z)
+        Emit(o, loop(s2)(f))
+      }
+      case _ => Halt()
+    }
+
+  // Exercise 15.4
+  def sumViaLoop: Process[Double, Double] =
+    loop(0.0)((i, s) => (i + s, i + s))
+
+  def countViaLoop[I]: Process[I, Int] =
+    loop(0)((_, s) => (s + 1, s + 1))
 
   def main(args: Array[String]): Unit = {
     val p = liftOne((x: Int) => x * 2)
@@ -110,6 +136,9 @@ object SimpleStreamTransducers {
     val s = sum(Stream(1, 2, 3, 4)).toList
     println(s)
 
+    val sl = sumViaLoop(Stream(1, 2, 3, 4)).toList
+    println(sl)
+
     val a1 = take(4)(Stream(1, 2, 3, 4, 5, 6)).toList
     println(a1)
 
@@ -124,5 +153,11 @@ object SimpleStreamTransducers {
 
     val a5 = count(Stream("a", "b", "c", "d", "a")).toList
     println(a5)
+
+    val a5l = countViaLoop(Stream("a", "b", "c", "d", "a")).toList
+    println(a5l)
+
+    val a6 = mean(Stream(7, 3, 5, 1, 10, 3)).toList
+    println(a6)
   }
 }
