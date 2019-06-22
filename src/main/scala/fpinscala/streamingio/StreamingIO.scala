@@ -23,6 +23,19 @@ object SimpleStreamTransducers {
 
       go(this)
     }
+
+    def |>[O2](p2: Process[O, O2]): Process[I, O2] =
+      p2 match {
+        case Halt() => Halt()
+        case Emit(h, t) => Emit(h, this |> t)
+        case Await(f) => this match {
+          case Halt() => Halt() |> f(None)
+          case Emit(h, t) => t |> f(Some(h))
+          case Await(g) => Await((i: Option[I]) => g(i) |> p2)
+        }
+      }
+
+    def map[O2](f: O => O2): Process[I, O2] = this |> lift(f)
   }
 
   case class Emit[I, O](
@@ -159,5 +172,8 @@ object SimpleStreamTransducers {
 
     val a6 = mean(Stream(7, 3, 5, 1, 10, 3)).toList
     println(a6)
+
+    val a7 = (filter[Int](_ % 2 == 0) |> lift(_ + 1))(Stream(7, 3, 6, 1, 10, 3, -2, 0, 11)).toList
+    println(a7)
   }
 }
