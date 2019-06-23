@@ -36,6 +36,19 @@ object SimpleStreamTransducers {
       }
 
     def map[O2](f: O => O2): Process[I, O2] = this |> lift(f)
+
+    def ++(p: => Process[I, O]): Process[I, O] = this match {
+      case Halt() => p
+      case Emit(h, t) => Emit(h, t ++ p)
+      case Await(recv) => Await(recv andThen (_ ++ p))
+    }
+
+    def flatMap[O2](f: O => Process[I, O2]): Process[I, O2] =
+      this match {
+        case Halt() => Halt()
+        case Emit(h, t) => f(h) ++ t.flatMap(f)
+        case Await(recv) => Await(recv andThen (_ flatMap f))
+      }
   }
 
   case class Emit[I, O](
@@ -117,6 +130,11 @@ object SimpleStreamTransducers {
     go(0.0, 0.0)
   }
 
+  val mean2: Process[Double, Double] =
+    (zip[Double, Double, Int](sum, count)) |> lift[(Double, Int), Double]{
+      case (s, n) => s / n
+    }
+
   def loop[S, I, O](z: S)(f: (I, S) => (O, S)): Process[I, O] =
     Await {
       case Some(d) => {
@@ -132,6 +150,31 @@ object SimpleStreamTransducers {
 
   def countViaLoop[I]: Process[I, Int] =
     loop(0)((_, s) => (s + 1, s + 1))
+
+  def feed[A, B](oa: Option[A])(p: Process[A, B]): Process[A, B] =
+    p match {
+      case Halt() => p
+      case Emit(h, t) => Emit(h, feed(oa)(t))
+      case Await(recv) => recv(oa)
+    }
+
+  def zip[A, B, C](p1: Process[A, B], p2: Process[A, C]): Process[A, (B, C)] =
+    (p1, p2) match {
+      case (Halt(), _) => Halt()
+      case (_, Halt()) => Halt()
+      case (Emit(b, t1), Emit(c, t2)) => Emit((b, c), zip(t1, t2))
+      case (Await(recv1), _) =>
+        Await((oa: Option[A]) => zip(recv1(oa), feed(oa)(p2)))
+      case (_, Await(recv2)) =>
+        Await((oa: Option[A]) => zip(feed(oa)(p1), recv2(oa)))
+    }
+
+  def any: Process[Boolean, Boolean] =
+    loop(false)((b: Boolean, s) => (s || b, s || b))
+
+  def exists[I](f: I => Boolean): Process[I, Boolean] =
+    lift(f) |> any
+
 
   def main(args: Array[String]): Unit = {
     val p = liftOne((x: Int) => x * 2)
@@ -170,10 +213,22 @@ object SimpleStreamTransducers {
     val a5l = countViaLoop(Stream("a", "b", "c", "d", "a")).toList
     println(a5l)
 
+    println("mean")
     val a6 = mean(Stream(7, 3, 5, 1, 10, 3)).toList
     println(a6)
 
+    val a6b = mean2(Stream(7, 3, 5, 1, 10, 3)).toList
+    println(a6b)
+
     val a7 = (filter[Int](_ % 2 == 0) |> lift(_ + 1))(Stream(7, 3, 6, 1, 10, 3, -2, 0, 11)).toList
     println(a7)
+
+    println("exists")
+    val a8a = exists[Int](_ > 10)(Stream(9, 10, 1, 4, 6)).toList
+    println(a8a)
+
+    val a8b = exists[Int](_ >= 10)(Stream(9, 10, 1, 4, 6)).toList
+    println(a8b)
   }
 }
+
